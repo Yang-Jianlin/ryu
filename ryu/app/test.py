@@ -1,10 +1,18 @@
-def aa(a, b, c):
-    pass
+mac_table = {}
+dpid = input('enter dpid:')
 
+mac_table.setdefault(dpid, {})
+print(mac_table)
 
-def bb(a, b, c):
-    pass
+src = input('enter src:')
+dst = input('enter dst:')
+inport = input('enter inport:')
+mac_table[dpid][src] = inport
+mac_table[dpid][dst] = inport
+print(mac_table)
 
-
-trp = [aa(a='1', b='2', c='3'), bb(a='3', b='32', c='1')]
-trp.a
+print(mac_table[dpid])
+for i in mac_table[dpid]:
+    print(i)
+for j in mac_table[dpid].values():
+    print(j)
