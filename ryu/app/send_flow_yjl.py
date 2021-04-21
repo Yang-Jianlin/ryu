@@ -3,6 +3,11 @@ from ryu.controller.handler import set_ev_cls
 from ryu.controller.handler import CONFIG_DISPATCHER
 from ryu.controller import ofp_event
 from ryu.ofproto import ofproto_v1_3
+'''
+流表的操作，
+这个程序主要介绍了流表的添加
+即，控制器向交换机下发流表
+'''
 
 
 class Sendflow(app_manager.RyuApp):
@@ -17,7 +22,7 @@ class Sendflow(app_manager.RyuApp):
         inst = [ofp_parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
         req = ofp_parser.OFPFlowMod(datapath=datapath, command=command,
                                     priority=priority, match=match, instructions=inst)
-        datapath.send_msg(req)
+        datapath.send_msg(req)  # 发送流表项
 
     # install table-miss flow entry
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
