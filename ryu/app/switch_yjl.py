@@ -67,8 +67,10 @@ class Switch(app_manager.RyuApp):
         # 字典的样式如下
         # {'dpid':{'src':in_port, 'dst':out_port}}
         self.mac_table.setdefault(dpid, {})
+        # 转发表的每一项就是mac地址和端口，所以在这里不需要额外的加上dst,port的对应关系，其实返回的时候目的就是源
         self.mac_table[dpid][src] = in_port
 
+        # 若转发表存在对应关系，就按照转发表进行；没有就需要广播得到目的ip对应的mac地址
         if dst in self.mac_table[dpid]:
             out_port = self.mac_table[dpid][dst]
         else:
