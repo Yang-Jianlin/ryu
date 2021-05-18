@@ -4,10 +4,9 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER, CONFIG_DISPATCHER
 from ryu.lib.packet import packet, ethernet
 from ryu.topology import event
-from ryu.topology.api import get_switch, get_link, get_host
+from ryu.topology.api import get_switch, get_link
 from ryu.ofproto import ofproto_v1_3
 
-import matplotlib.pyplot as plt
 import networkx as nx
 
 
@@ -78,32 +77,23 @@ class MyShortestForwarding(app_manager.RyuApp):
 
         datapath.send_msg(out)
 
-    @set_ev_cls(event.EventSwitchEnter)
+    @set_ev_cls(event.EventSwitchEnter, [CONFIG_DISPATCHER,
+                                         MAIN_DISPATCHER])  # event is not from openflow protocol, is come from switchs` state changed, just like: link to controller at the first time or send packet to controller
     def get_topology(self, ev):
         # store nodes info into the Graph
-        switch_list = get_switch(self.topology_api_app)
-        print('switch_list:', switch_list)
-        switches = []
-        for switch in switch_list:
-            switches.append(switch.dp.id)
-        print('switches:', switches)
+        switch_list = get_switch(self.topology_api_app, None)  # ------------need to get info,by debug
+        switches = [switch.dp.id for switch in switch_list]
         self.network.add_nodes_from(switches)
 
         # store links info into the Graph
-        link_list = get_link(self.topology_api_app)
-        print('link_list:', link_list)
-        links = []
-        for link in link_list:
-            links.append((link.src.dpid, link.dst.dpid, {'attr_dict': {'port': link.dst.port_no}}))
-        print('links', links)
+        link_list = get_link(self.topology_api_app, None)
+        # port_no, in_port    ---------------need to debug, get diffirent from  both
+        links = [(link.src.dpid, link.dst.dpid, {'attr_dict': {'port': link.dst.port_no}}) for link in
+                 link_list]  # add edge, need src,dst,weigtht
         self.network.add_edges_from(links)
 
-        for link in link_list:
-            links.append((link.dst.dpid, link.src.dpid, {'attr_dict': {'port': link.dst.port_no}}))
+        links = [(link.dst.dpid, link.src.dpid, {'attr_dict': {'port': link.dst.port_no}}) for link in link_list]
         self.network.add_edges_from(links)
-
-        host_list = get_host(self.topology_api_app)
-        print('host_list:', host_list)
 
     def get_out_port(self, datapath, src, dst, in_port):
         dpid = datapath.id
@@ -119,7 +109,9 @@ class MyShortestForwarding(app_manager.RyuApp):
         if dst in self.network:
             if dst not in self.paths[src]:  # if not cache src to dst path,then to find it
                 path = nx.shortest_path(self.network, src, dst)
+                print('path:', path)
                 self.paths[src][dst] = path
+                print('paths:', self.paths)
 
             path = self.paths[src][dst]
             next_hop = path[path.index(dpid) + 1]
