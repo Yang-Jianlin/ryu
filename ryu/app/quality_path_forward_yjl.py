@@ -110,6 +110,7 @@ class DelayDetector(app_manager.RyuApp):
         link_list = get_link(self.topology_api_app)
         self.links_src_dst = []
         # 将得到的链路的信息作为边写入图中
+        # 注意这里links_src_dst时列表里列表，即[[],[],[]]，不能是元组，因为元组不可更改，也就是后面无法更新权重信息
         for link in link_list:
             self.links_src_dst.append([link.src.dpid, link.dst.dpid, 0])
         self.G.add_weighted_edges_from(self.links_src_dst)
