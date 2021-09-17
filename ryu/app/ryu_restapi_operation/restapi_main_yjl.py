@@ -1,4 +1,4 @@
-from ryu.app.ryu_restapi_operation.operate_restapi_yjl import GetInformation, PostOperation
+from ryu.app.operate_restapi_yjl import GetInformation, PostOperation
 import time
 
 
@@ -31,7 +31,7 @@ class Interface:
                     if opera_flow_choose == '1':
                         info = list(input('输入参数(dpid,cookie,priority,in_port,type,port):').split())
                         postoper.post_add_flow(dpid=int(info[0]), cookie=int(info[1]), priority=int(info[2]),
-                                               in_port=int(info[3]), type=info[4], port=info[5])
+                                               in_port=info[3], type=info[4], port=info[5])
                         opera_flow_choose = input('1、添加流表 || 2、删除流表 || 3、清空流表 || 4、退出:')
                     elif opera_flow_choose == '2':
                         info = list(input('输入参数(dpid,cookie,priority,in_port,type,port):').split())

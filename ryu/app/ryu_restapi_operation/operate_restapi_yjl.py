@@ -46,23 +46,41 @@ class PostOperation:
 
     def post_add_flow(self, dpid=None, cookie=0, priority=0, in_port=1, type='OUTPUT', port='CONTROLLER'):
         url = 'http://' + self.ip + ':' + self.port + '/stats/flowentry/add'
-        data = {
-            "dpid": dpid,
-            "cookie": cookie,
-            "cookie_mask": 0,
-            "table_id": 0,
-            "priority": priority,
-            "flags": 0,
-            "match": {
-                "in_port": in_port
-            },
-            "actions": [
-                {
-                    "type": type,
-                    "port": port
-                }
-            ]
-        }
+        if in_port == 'None':
+            # 添加的默认流表项数据信息
+            data = {
+                "dpid": dpid,
+                "cookie": cookie,
+                "cookie_mask": 0,
+                "table_id": 0,
+                "priority": priority,
+                "flags": 0,
+                "actions": [
+                    {
+                        "type": type,
+                        "port": port
+                    }
+                ]
+            }
+        else:
+            in_port = int(in_port)
+            data = {
+                "dpid": dpid,
+                "cookie": cookie,
+                "cookie_mask": 0,
+                "table_id": 0,
+                "priority": priority,
+                "flags": 0,
+                "match": {
+                    "in_port": in_port
+                },
+                "actions": [
+                    {
+                        "type": type,
+                        "port": port
+                    }
+                ]
+            }
 
         response = requests.post(url=url, json=data)
         if response.status_code == 200:
